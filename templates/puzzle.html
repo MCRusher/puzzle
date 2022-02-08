@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+	#div1 {
+		width: 250px;
+		height: 250px;
+		padding: 10px;
+		border: 1px solid #aaaaaa;
+	}
+	img.piece {
+		width: 99%;
+		height: 99%;
+		margin: auto;
+		display: block;
+	}
+	.slot {
+		height: 200px;
+		width: 200px;
+		background: black;
+		border: 5px solid black;
+	}
+	.spacer {
+		height: 200px;
+		width: 200px;
+	}
+</style>
+</head>
+<body>
+
+<p id="output">Puzzle Not Solved</p>
+
+<table><tr>
+	<td>
+		<input type="button" onclick="checkSolution()" value="Check"/>
+	</td>
+	<td>
+		<form method="POST">
+			<input type="submit" value="Reset"/>
+			<input type="submit" name="new" value="New Puzzle"/>
+		</form>
+	</td>
+</tr></table>
+
+<table><tr>
+<td>
+
+<table id="grid">
+	<tr>
+	{%set ns = namespace(counter=0)%}
+	{%for part in range(0,image_parts|count)%}
+			<td id="s{{part}}" class="slot" ondrop="drop(event)" ondragover="allowDrop(event)"></td>
+		{%if ns.counter != parts_per_side-1%}
+			{%set ns.counter = ns.counter + 1%}
+			<!--counter{{part}}: {{counter}}-->
+		{%else%}
+			<!--counter reset{{part}}: {{counter}}-->
+			</tr>
+			<tr>
+			{%set ns.counter = 0%}
+		{%endif%}
+	{%endfor%}
+	</tr>
+</table>
+
+</td>
+<td class="spacer"></td>
+<td>
+
+<table id="pieces">
+	<tr>
+	{%set ns = namespace(counter=0)%}
+	{%for part in range(0,image_parts|count)%}
+			<td class="slot" ondrop="drop(event)" ondragover="allowDrop(event)">
+				<img id="p{{image_parts[part]}}" class="piece" src="static/images/{{image_num}}/{{image_parts[part]}}.jpg" alt="image" draggable="true" ondragstart="drag(event)">
+			</td>
+		{%if ns.counter != parts_per_side-1%}
+			{%set ns.counter = ns.counter + 1%}
+			<!--counter{{part}}: {{counter}}-->
+		{%else%}
+			<!--counter reset{{part}}: {{counter}}-->
+			</tr>
+			<tr>
+			{%set ns.counter = 0%}
+		{%endif%}
+	{%endfor%}
+	</tr>
+</table>
+
+</td>
+</tr><table>
+
+</body>
+<script>
+let count = {{image_parts|count}};
+
+function allowDrop(ev) {
+	ev.preventDefault();
+}
+
+function drag(ev) {
+	ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+	ev.preventDefault();
+	if(ev.target.childElementCount == 0 && ev.target.nodeName != "IMG"){
+		var data = ev.dataTransfer.getData("text");
+		var elem = document.getElementById(data)
+		ev.target.appendChild(elem);
+	}
+}
+
+function checkSolution() {
+	var output = document.getElementById("output");
+	for(i = 0; i < count; i++){
+		let slot = document.getElementById("s"+i);
+		if((slot.childElementCount != 1) || (slot.children[0].id != "p"+i)){
+			output.textContent = "Puzzle Solution Is Incorrect";
+			return;
+		}
+	}
+	output.textContent = "Puzzle Solved!";
+}
+</script>
+</html> 
